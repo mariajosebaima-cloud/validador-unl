@@ -62,7 +62,8 @@ st.sidebar.info("""
 1. Exportar el archivo XML desde el módulo de DOIs de OJS.
 2. Cargar el archivo `.xml` en el panel principal.
 3. Revisar el reporte de la auditoría.
-4. Corregir las inconsistencias señaladas.
+4. Corregir en OJS las inconsistencias señaladas.
+5. Una vez curado, solicitar activación de DOI.
 """)
 
 
