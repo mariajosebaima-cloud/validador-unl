@@ -31,8 +31,8 @@ st.sidebar.image(
 
 st.sidebar.markdown("### 🏛️ Programa de Bibliotecas UNL")
 st.sidebar.caption(
-    "Herramienta institucional desarrollada para el control de calidad de la"
-    " producción editorial."
+    "Herramienta institucional desarrollada por el Programa de Bibliotecas para el control2
+    de calidad de la producción editorial."
 )
 
 with st.sidebar.expander("🔎 ¿Qué hace esta aplicación?", expanded=False):
