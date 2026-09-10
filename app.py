@@ -138,7 +138,7 @@ if archivo_xml is not None:
         advertencias = sum(1 for r in resultados if r["estado"] == "APROBADO CON ADVERTENCIAS")
         aprobados = sum(1 for r in resultados if r["estado"] == "APROBADO")
 
-        st.markdown("### 📊 Resumen Ejecutivo")
+        st.markdown("### 📊 Resumen")
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Total Artículos", total_arts)
         c2.metric("🟢 Aprobados", aprobados)
