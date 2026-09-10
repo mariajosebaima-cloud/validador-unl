@@ -23,51 +23,28 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 3. Panel Lateral (Sidebar) Institucional e Informativo
+# 3. Panel Lateral (Sidebar)
 st.sidebar.image(
     "https://www.unl.edu.ar/servicios/wp-content/uploads/sites/62/2022/05/logo_unl.png",
     use_container_width=True,
 )
-
 st.sidebar.markdown("### 🏛️ Programa de Bibliotecas UNL")
-st.sidebar.caption(
-    "Herramienta institucional desarrollada para el control de calidad de la"
-    " producción editorial."
-)
+st.sidebar.caption("Auditoría técnica de metadatos Crossref previo a registro.")
 
 with st.sidebar.expander("🔎 ¿Qué hace esta aplicación?", expanded=False):
   st.write(
-      "Esta aplicación audita de forma automática los archivos XML exportados"
-      " desde OJS antes de solicitar la activación de los identificadores"
-      " persistentes (DOIs). Analiza la estructura del archivo y verifica el"
-      " cumplimiento de los esquemas técnicos y buenas prácticas exigidas por"
-      " Crossref."
+      "Audita archivos XML exportados desde OJS verificando la presencia y"
+      " calidad de DOIs, ORCIDs, RORs, licencias y listas de referencias."
   )
 
-with st.sidebar.expander(
-    "💡 Importancia de la curaduría de metadatos", expanded=False
-):
-  st.markdown("""
-    Registrar metadatos completos y estandarizados no es solo un requisito administrativo, sino la base de la visibilidad científica moderna:
-
-    * **Descubribilidad e Interconexión:** Metadatos ricos integran los artículos a la red académica global, facilitando su hallazgo en bases de datos e índices internacionales.
-    * **Atribución Correcta:** La inclusión de identificadores persistentes como ORCID para autores e identificadores ROR para instituciones garantiza la autoría e integridad de la filiación académica.
-    * **Citación Automática y Precisión:** Evita errores en la generación de citas bibliográficas en gestores como Zotero o Mendeley al prevenir inconsistencias en títulos, volúmenes o autores.
-    * **Interoperabilidad:** Permite que las computadoras y plataformas externas consuman y procesen la información de la revista de forma automatizada y abierta.
-    """)
-
 st.sidebar.divider()
-st.sidebar.markdown("#### 📋 Instrucciones de Uso")
-st.sidebar.info("""
-1. Exportar el archivo XML desde el módulo de DOIs de OJS.
-2. Cargar el archivo `.xml` en el panel principal.
-3. Revisar el reporte de la auditoría.
-4. Corregir en OJS las inconsistencias señaladas.
-5. Una vez curado, solicitar activación de DOI.
-""")
+st.sidebar.info(
+    "Cargue el archivo XML generado en el módulo de Crossref de OJS para"
+    " iniciar el diagnóstico."
+)
 
 
-# 4. Funciones Auxiliares de Validación
+# 4. Funciones Auxiliares
 def validar_orcid(orcid_url):
   if not orcid_url:
     return False
@@ -81,7 +58,7 @@ def get_tag_name(element):
   return element.tag.split("}")[-1] if "}" in element.tag else element.tag
 
 
-# 5. Función Principal de Procesamiento y Auditoría
+# 5. Función Principal de Auditoría
 def procesar_xml_crossref(xml_content):
   try:
     root = ET.fromstring(xml_content)
@@ -96,17 +73,10 @@ def procesar_xml_crossref(xml_content):
 
   if not articulos:
     root_tag = get_tag_name(root)
-    if root_tag in ["issue", "articles", "native"]:
-      return (
-          None,
-          "El XML fue generado con el 'Plugin XML Nativo' de OJS. Debes"
-          " exportarlo desde el módulo de DOIs de OJS.",
-      )
     return (
         None,
-        "No se encontraron nodos de artículos en el XML (Nodo raíz detectado:"
-        f" '{root_tag}'). Verifique que el archivo provenga del módulo de DOIs"
-        " de Crossref.",
+        f"No se encontraron artículos (<journal_article>) en el XML. Nodo raíz"
+        f" detectado: '{root_tag}'.",
     )
 
   resultados = []
@@ -133,18 +103,11 @@ def procesar_xml_crossref(xml_content):
     else:
       if title_text.isupper() and len(title_text) > 5:
         advertencias.append(
-            "Título en MAYÚSCULAS SOSTENIDAS. Se recomienda usar mayúsculas y"
-            " minúsculas estándar para facilitar la citación."
-        )
-      if re.search(
-          r"\b(vol\.|volume|no\.|issue|pp\.|page)\b", title_text, re.IGNORECASE
-      ):
-        advertencias.append(
-            "El título parece incluir metadatos adicionales (volumen, páginas,"
-            " etc.). Sepárelos en sus etiquetas correspondientes."
+            "Título en MAYÚSCULAS SOSTENIDAS. Se recomienda minúsculas"
+            " estándar."
         )
 
-    # B. DOI Y URL DE DESTINO
+    # B. DOI Y URL
     doi_elem = next((e for e in art.iter() if get_tag_name(e) == "doi"), None)
     resource_node = next(
         (e for e in art.iter() if get_tag_name(e) == "resource"), None
@@ -160,26 +123,29 @@ def procesar_xml_crossref(xml_content):
     )
 
     if not doi:
-      errores.append("DOI ausente o no configurado en el archivo.")
+      errores.append("DOI ausente en los metadatos del artículo.")
     elif not doi.startswith("10.14409/"):
       advertencias.append(
-          f"El DOI registrado ('{doi}') no utiliza el prefijo institucional UNL"
+          f"El DOI ('{doi}') no utiliza el prefijo institucional UNL"
           " (10.14409/)."
       )
 
     if not url:
       errores.append("URL de destino (resource) ausente.")
     elif not url.startswith("https://"):
-      errores.append("La URL de destino no utiliza el protocolo seguro HTTPS.")
+      errores.append(
+          f"La URL de destino ('{url}') no utiliza protocolo seguro HTTPS."
+      )
 
-    # C. AUTORES Y CONTRIBUIDORES
+    # C. AUTORES, AFILIACIONES, ORCID Y ROR
     contributors = [
         e for e in art.iter() if get_tag_name(e) in ["person_name", "author"]
     ]
     autores_con_orcid = 0
+    autores_con_ror = 0
 
     if not contributors:
-      errores.append("No hay autores o contribuidores asignados al artículo.")
+      errores.append("No hay autores asignados al artículo.")
     else:
       for c in contributors:
         given_name = next(
@@ -200,24 +166,37 @@ def procesar_xml_crossref(xml_content):
         )
         nombre_completo = f"{given_name} {surname}".strip()
 
-        if surname.isupper() or (given_name and given_name.isupper()):
-          advertencias.append(
-              f"Autor '{nombre_completo}' tiene el nombre/apellido en"
-              " MAYÚSCULAS SOSTENIDAS."
+        # Detección flexible de afiliación (Soporta <affiliation> e <institution_name>)
+        affil_nodes = [
+            e.text
+            for e in c.iter()
+            if get_tag_name(e) in ["affiliation", "institution_name"] and e.text
+        ]
+        if not affil_nodes:
+          buenas_practicas.append(
+              f"Autor '{nombre_completo}' no incluye afiliación institucional."
           )
 
-        if re.search(r"\b(Jr\.?|Sr\.?|II|III|IV|V)\b", surname, re.IGNORECASE):
-          advertencias.append(
-              f"El apellido '{surname}' incluye un sufijo. Utilice el campo"
-              " dedicado <suffix>."
-          )
+        # Detección de ROR
+        ror_elem = next(
+            (
+                e.text
+                for e in c.iter()
+                if get_tag_name(e) == "institution_id"
+                and e.attrib.get("type") == "ror"
+            ),
+            None,
+        )
+        if ror_elem:
+          autores_con_ror += 1
 
+        # Detección de ORCID
         orcid_elem = next(
             (e for e in c.iter() if get_tag_name(e) == "ORCID"), None
         )
         if orcid_elem is None or not orcid_elem.text:
-          buenas_practicas.append(
-              f"Autor '{nombre_completo}' no cuenta con identificador ORCID."
+          advertencias.append(
+              f"Autor '{nombre_completo}' no cuenta con ORCID registrado."
           )
         else:
           orcid_val = orcid_elem.text.strip()
@@ -228,93 +207,23 @@ def procesar_xml_crossref(xml_content):
                 f"ORCID mal formado para autor '{nombre_completo}': {orcid_val}"
             )
 
-        affil = next(
-            (
-                e.text
-                for e in c.iter()
-                if get_tag_name(e) == "affiliation" and e.text
-            ),
-            None,
+      if autores_con_ror > 0:
+        buenas_practicas.append(
+            f"Se identificaron {autores_con_ror} autor(es) con identificador"
+            " ROR de institución."
         )
-        if not affil:
-          buenas_practicas.append(
-              f"Autor '{nombre_completo}' no incluye información de afiliación"
-              " institucional."
-          )
 
     # D. RESUMEN (ABSTRACT)
-    abstract_elem = next(
-        (e for e in art.iter() if get_tag_name(e) == "abstract"), None
-    )
-    tiene_abstract = abstract_elem is not None and bool(
-        "".join(abstract_elem.itertext()).strip()
+    abstract_elems = [
+        e for e in art.iter() if get_tag_name(e) in ["abstract", "p"]
+    ]
+    tiene_abstract = any(
+        "".join(e.itertext()).strip() for e in abstract_elems
     )
     if not tiene_abstract:
-      buenas_practicas.append("Falta el resumen (Abstract) en los metadatos.")
+      advertencias.append("Falta el resumen (Abstract) en los metadatos.")
 
-    # E. FECHAS DE PUBLICACIÓN
-    pub_dates = [
-        e
-        for e in art.iter()
-        if get_tag_name(e) in ["publication_date", "journal_issue"]
-    ]
-    for date_elem in pub_dates:
-      year = next(
-          (
-              e.text
-              for e in date_elem.iter()
-              if get_tag_name(e) == "year" and e.text
-          ),
-          None,
-      )
-      month = next(
-          (
-              e.text
-              for e in date_elem.iter()
-              if get_tag_name(e) == "month" and e.text
-          ),
-          None,
-      )
-      day = next(
-          (
-              e.text
-              for e in date_elem.iter()
-              if get_tag_name(e) == "day" and e.text
-          ),
-          None,
-      )
-
-      if year and (not month or not day):
-        buenas_practicas.append(
-            "Se recomienda declarar la fecha completa de publicación (año, mes"
-            " y día)."
-        )
-        break
-
-    # F. PAGINACIÓN Y E-LOCATION
-    first_page = next(
-        (
-            e.text
-            for e in art.iter()
-            if get_tag_name(e) == "first_page" and e.text
-        ),
-        None,
-    )
-    if first_page:
-      if "-" in first_page or "–" in first_page:
-        errores.append(
-            f"El campo <first_page> ('{first_page}') contiene un rango. Debe"
-            " incluir únicamente la página inicial."
-        )
-      elif re.search(r"[a-zA-Z]", first_page) and not re.match(
-          r"^[eE]\d+", first_page
-      ):
-        advertencias.append(
-            f"El campo <first_page> ('{first_page}') contiene texto"
-            " innecesario."
-        )
-
-    # G. LICENCIA CC
+    # E. LICENCIA CC
     license_elem = next(
         (
             e.text
@@ -325,16 +234,17 @@ def procesar_xml_crossref(xml_content):
     )
     tiene_licencia = license_elem is not None
     if not tiene_licencia:
-      buenas_practicas.append(
+      advertencias.append(
           "No se declaró la licencia Creative Commons (<license_ref>)."
       )
-    elif not license_elem.startswith("http"):
-      advertencias.append(
-          f"La URL de la licencia ('{license_elem}') no tiene un formato"
-          " HTTP/HTTPS válido."
-      )
+    else:
+      if license_elem.startswith("http://"):
+        advertencias.append(
+            f"La URL de la licencia ('{license_elem}') utiliza HTTP no seguro."
+            " Se recomienda HTTPS."
+        )
 
-    # H. REFERENCIAS ESTRUCTURADAS
+    # F. REFERENCIAS ESTRUCTURADAS
     citations = [
         e
         for e in art.iter()
@@ -342,12 +252,12 @@ def procesar_xml_crossref(xml_content):
     ]
     tiene_citas = len(citations) > 0
     if not tiene_citas:
-      buenas_practicas.append(
-          "Sin lista de referencias estructuradas (Reference Linking"
-          " deshabilitado)."
+      advertencias.append(
+          "Sin lista de referencias estructuradas (Reference Linking no"
+          " disponible)."
       )
 
-    # DETERMINACIÓN DE ESTADO FINAL
+    # G. DETERMINACIÓN DE ESTADO
     if errores:
       estado = "RECHAZADO"
     elif advertencias:
@@ -366,6 +276,7 @@ def procesar_xml_crossref(xml_content):
         "buenas_practicas": buenas_practicas,
         "autores_total": len(contributors),
         "autores_con_orcid": autores_con_orcid,
+        "autores_con_ror": autores_con_ror,
         "tiene_abstract": tiene_abstract,
         "tiene_licencia": tiene_licencia,
         "tiene_citas": tiene_citas,
@@ -374,7 +285,7 @@ def procesar_xml_crossref(xml_content):
   return resultados, None
 
 
-# --- INTERFAZ PRINCIPAL DE LA APP ---
+# --- INTERFAZ PRINCIPAL ---
 st.markdown(
     '<div class="main-header">Validador de Metadatos Crossref</div>',
     unsafe_allow_html=True,
@@ -403,7 +314,7 @@ if archivo_xml is not None:
     )
     aprobados = sum(1 for r in resultados if r["estado"] == "APROBADO")
 
-    st.markdown("### 📊 Resumen de la Auditoría")
+    st.markdown("### 📊 Resumen Ejecutivo de la Auditoría")
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Total Artículos", total_arts)
     c2.metric("🟢 Aprobados", aprobados)
@@ -411,42 +322,19 @@ if archivo_xml is not None:
     c4.metric("🔴 Rechazados", rechazados)
 
     if rechazados > 0:
-      st.error(
-          f"⛔ **Lote no apto para activación:** Hay {rechazados} artículo(s) con"
-          " errores críticos que rebotarán o incumplen requisitos"
-          " obligatorios."
-      )
+      st.error(f"⛔ **Lote no apto:** Se detectaron {rechazados} error(es).")
     elif advertencias > 0:
       st.warning(
           f"⚠️ **Lote apto con observaciones:** {advertencias} artículo(s)"
-          " tienen oportunidades de mejora en la calidad de metadatos."
+          " presentan observaciones de calidad."
       )
     else:
-      st.success(
-          "🎉 **Lote 100% Aprobado:** Todos los artículos cumplen con las"
-          " normas técnicas y buenas prácticas."
-      )
+      st.success("🎉 **Lote Aprobado sin observaciones.**")
 
     st.divider()
-
-    st.markdown("### 🔍 Detalle Artículo por Artículo")
-    filtro = st.radio(
-        "Filtrar por estado:",
-        ["Todos", "🔴 Rechazados", "🟡 Con Advertencias", "🟢 Aprobados"],
-        horizontal=True,
-    )
+    st.markdown("### 🔍 Detalle por Artículo")
 
     for r in resultados:
-      if filtro == "🔴 Rechazados" and r["estado"] != "RECHAZADO":
-        continue
-      if (
-          filtro == "🟡 Con Advertencias"
-          and r["estado"] != "APROBADO CON ADVERTENCIAS"
-      ):
-        continue
-      if filtro == "🟢 Aprobados" and r["estado"] != "APROBADO":
-        continue
-
       badge = (
           "🟢 APROBADO"
           if r["estado"] == "APROBADO"
@@ -461,7 +349,7 @@ if archivo_xml is not None:
         st.markdown(f"**DOI:** `{r['doi']}` | **URL:** [{r['url']}]({r['url']})")
 
         if r["errores"]:
-          st.markdown("##### ❌ Errores Críticos (Corregir obligatoriamente):")
+          st.markdown("##### ❌ Errores Críticos:")
           for err in r["errores"]:
             st.markdown(f"- 🔴 {err}")
 
@@ -471,30 +359,28 @@ if archivo_xml is not None:
             st.markdown(f"- 🟡 {adv}")
 
         if r["buenas_practicas"]:
-          st.markdown("##### 💡 Oportunidades de Mejora (Buenas Prácticas):")
+          st.markdown("##### 💡 Observaciones / Buenas Prácticas:")
           for bp in r["buenas_practicas"]:
             st.markdown(f"- 🔵 {bp}")
 
     st.divider()
-    st.markdown("### 📥 Exportar Reporte de Auditoría")
-
     df_export = pd.DataFrame([{
-        "Artículo ID": r["idx"],
+        "ID": r["idx"],
         "Título": r["titulo"],
         "DOI": r["doi"],
         "Estado": r["estado"],
-        "Errores Críticos": " | ".join(r["errores"]),
+        "Errores": " | ".join(r["errores"]),
         "Advertencias": " | ".join(r["advertencias"]),
         "Buenas Prácticas": " | ".join(r["buenas_practicas"]),
-        "Autores Con ORCID": f"{r['autores_con_orcid']}/{r['autores_total']}",
+        "ORCIDs": f"{r['autores_con_orcid']}/{r['autores_total']}",
+        "RORs": f"{r['autores_con_ror']}/{r['autores_total']}",
     } for r in resultados])
 
     csv_buffer = io.StringIO()
     df_export.to_csv(csv_buffer, index=False)
-
     st.download_button(
-        label="📄 Descargar Reporte CSV (Para adjuntar en Redmine)",
-        data=csv_buffer.getvalue(),
-        file_name="reporte_auditoria_crossref.csv",
-        mime="text/csv",
+        "📄 Descargar Reporte CSV",
+        csv_buffer.getvalue(),
+        "reporte_crossref.csv",
+        "text/csv",
     )
