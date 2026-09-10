@@ -124,7 +124,7 @@ def procesar_xml_crossref(xml_content):
 st.markdown('<div class="main-header">Validador de Metadatos Crossref</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-header">Programa de Bibliotecas UNL | Auditoría técnica previa a la activación de DOIs</div>', unsafe_allow_html=True)
 
-archivo_xml = st.file_uploader("📂 Selecciona o arrastra el archivo XML de Crossref", type=["xml"])
+archivo_xml = st.file_uploader("📂 Seleccione o arrastre el archivo XML de Crossref", type=["xml"])
 
 if archivo_xml is not None:
     bytes_data = archivo_xml.read()
