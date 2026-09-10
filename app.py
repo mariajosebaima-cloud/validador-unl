@@ -1,6 +1,3 @@
-Aquí tenés el código completo e integrado para actualizar tu archivo `app.py`. Combina tu estructura previa (con la validación estricta del ORCID vía Regex) con las reglas de calidad de Crossref y el panel lateral informativo institucional.
-
-```python
 import io
 import re
 import xml.etree.ElementTree as ET
@@ -500,5 +497,3 @@ if archivo_xml is not None:
         file_name="reporte_auditoria_crossref.csv",
         mime="text/csv",
     )
-
-```
