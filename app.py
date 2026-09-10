@@ -165,4 +165,4 @@ if archivo_xml is not None:
         df_export = pd.DataFrame(resultados)
         csv_buffer = io.StringIO()
         df_export.to_csv(csv_buffer, index=False)
-        st.download_button("📄 Descargar Reporte CSV para Redmine", csv_buffer.getvalue(), "reporte_crossref.csv", "text/csv")
+        st.download_button("📄 Descargar Reporte", csv_buffer.getvalue(), "reporte_crossref.csv", "text/csv")
