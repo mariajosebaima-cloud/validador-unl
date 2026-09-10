@@ -50,7 +50,7 @@ with st.sidebar.expander(
   st.markdown("""
     Registrar metadatos completos y estandarizados no es solo un requisito administrativo, sino la base de la visibilidad científica moderna:
 
-    * **Descubribilidad e Interconexión:** Metadatos ricos integran los artículos a la red académica global (Research Nexus), facilitando su hallazgo en bases de datos e índices internacionales.
+    * **Descubribilidad e Interconexión:** Metadatos ricos integran los artículos a la red académica global, facilitando su hallazgo en bases de datos e índices internacionales.
     * **Atribución Correcta:** La inclusión de identificadores persistentes como ORCID para autores e identificadores ROR para instituciones garantiza la autoría e integridad de la filiación académica.
     * **Citación Automática y Precisión:** Evita errores en la generación de citas bibliográficas en gestores como Zotero o Mendeley al prevenir inconsistencias en títulos, volúmenes o autores.
     * **Interoperabilidad:** Permite que las computadoras y plataformas externas consuman y procesen la información de la revista de forma automatizada y abierta.
@@ -59,10 +59,10 @@ with st.sidebar.expander(
 st.sidebar.divider()
 st.sidebar.markdown("#### 📋 Instrucciones de Uso")
 st.sidebar.info("""
-1. Exporta el archivo XML desde el módulo de DOIs de OJS.
-2. Carga el archivo `.xml` en el panel principal.
-3. Revisa la auditoría y corrige las inconsistencias señaladas.
-4. Adjunta el reporte generado en el ticket de Redmine.
+1. Exportar el archivo XML desde el módulo de DOIs de OJS.
+2. Cargar el archivo `.xml` en el panel principal.
+3. Revisar el reporte de la auditoría.
+4. Corregir las inconsistencias señaladas.
 """)
 
 
