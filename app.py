@@ -6,7 +6,7 @@ import io
 
 # Configuración de página de Streamlit
 st.set_page_config(
-    page_title="Validador Crossref UNL",
+    page_title="Validador UNL",
     page_icon="📚",
     layout="wide",
     initial_sidebar_state="expanded"
