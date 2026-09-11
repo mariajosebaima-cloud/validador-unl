@@ -28,8 +28,7 @@ st.sidebar.image(
     "https://bibliotecas.unl.edu.ar/wp-content/uploads/2025/07/cropped-RedBibliotecas.png",
     use_container_width=True,
 )
-st.sidebar.markdown("### Programa de Bibliotecas")
-st.sidebar.caption("Auditoría técnica de metadatos Crossref previo a registro.")
+st.sidebar.caption("Aplicación para auditoría técnica de metadatos conforme a las buenas prácticas establecidas por Crossref para registro de DOIs.")
 
 with st.sidebar.expander("🔎 ¿Qué hace esta aplicación?", expanded=False):
   st.write(
