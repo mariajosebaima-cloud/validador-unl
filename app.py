@@ -25,7 +25,7 @@ st.markdown(
 
 # 3. Panel Lateral (Sidebar)
 st.sidebar.image(
-    "https://www.unl.edu.ar/servicios/wp-content/uploads/sites/62/2022/05/logo_unl.png",
+    "https://bibliotecas.unl.edu.ar/wp-content/uploads/2025/07/cropped-RedBibliotecas.png",
     use_container_width=True,
 )
 st.sidebar.markdown("### 🏛️ Programa de Bibliotecas UNL")
