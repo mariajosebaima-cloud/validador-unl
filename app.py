@@ -297,7 +297,7 @@ st.markdown(
 )
 
 archivo_xml = st.file_uploader(
-    "📂 Selecciona o arrastra el archivo XML de Crossref", type=["xml"]
+    "📂 Seleccione o arrastre el archivo XML de Crossref", type=["xml"]
 )
 
 if archivo_xml is not None:
