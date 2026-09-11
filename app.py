@@ -34,7 +34,7 @@ st.sidebar.caption("Auditoría técnica de metadatos Crossref previo a registro.
 with st.sidebar.expander("🔎 ¿Qué hace esta aplicación?", expanded=False):
   st.write(
       "Audita archivos XML exportados desde OJS verificando la presencia y"
-      " calidad de DOIs, ORCIDs, RORs, licencias y listas de referencias."
+      " calidad de los metadatos allí cargados (DOIs, ORCIDs, RORs, licencias y listas de referencias)."
   )
 
 st.sidebar.divider()
