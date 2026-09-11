@@ -26,7 +26,7 @@ st.markdown(
 # 3. Panel Lateral (Sidebar)
 st.sidebar.image(
     "https://www.unl.edu.ar/servicios/wp-content/uploads/sites/62/2022/05/logo_unl.png",
-    width=stretch,
+    use_container_width=True,
 )
 st.sidebar.markdown("### 🏛️ Programa de Bibliotecas UNL")
 st.sidebar.caption("Auditoría técnica de metadatos Crossref previo a registro.")
