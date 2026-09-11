@@ -37,14 +37,10 @@ with st.sidebar.expander("🔎 ¿Qué hace esta aplicación?", expanded=False):
   )
 
 st.sidebar.divider()
-st.sidebar.info(
-    "Cargue el archivo XML generado en el módulo de Crossref de OJS para"
-    " iniciar el diagnóstico."
-)
 st.sidebar.markdown("#### Instrucciones de Uso")
 st.sidebar.info("""
 1. Exporte el archivo XML desde el módulo de DOIs de OJS.
-2. Cargue el archivo `.xml` en el validador.
+2. Cargue el archivo `.xml` en el validador para iniciar el diagnóstico.
 3. Revise el reporte de auditoría y corrija en OJS las inconsistencias señaladas.
 4. Luego de realizadas las correcciones solicitar la activación de DOIs.
 """)
