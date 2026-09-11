@@ -28,7 +28,7 @@ st.sidebar.image(
     "https://bibliotecas.unl.edu.ar/wp-content/uploads/2025/07/cropped-RedBibliotecas.png",
     use_container_width=True,
 )
-st.sidebar.markdown("### 🏛️ Programa de Bibliotecas UNL")
+st.sidebar.markdown("### Programa de Bibliotecas UNL")
 st.sidebar.caption("Auditoría técnica de metadatos Crossref previo a registro.")
 
 with st.sidebar.expander("🔎 ¿Qué hace esta aplicación?", expanded=False):
